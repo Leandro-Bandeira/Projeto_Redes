@@ -1,6 +1,5 @@
 
 from Client_udp import Client_udp
-from Server_udp import Server_udp
 
 # Função responsável pela interação com o usuário
 def main():
