@@ -35,9 +35,6 @@ class Client_udp:
         if type != 3:
             msg_rcv = str(data[4:-1].decode("ascii")).rstrip()
         else:
-            msg_rcv = 0
+            msg_rcv = int.from_bytes((data[4:]), "big")
             
-            data_value = data[4:] # Pega todos os valores da resposta 
-            for i in range(len(data_value)):
-                msg_rcv += int.from_bytes(data_value[i:i+1], byteorder='big') #Converte cada byte em inteiro de acordo com o big endian
         print(msg_rcv)
