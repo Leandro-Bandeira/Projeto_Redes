@@ -29,7 +29,7 @@ class Client_udp:
         msg = type_request + id # Concatena as informações 
         self.sock.sendto(msg, (UDP_IP, UDP_PORT)) #Envia as mensagens UDP para o servidor
         data, addr = self.sock.recvfrom(1024)
-        
+    
         # Para cada valor inteiro, transforma-o em ascii a partir do quarto byte que começa a mensagem
         # até o final
         if type != 3:
