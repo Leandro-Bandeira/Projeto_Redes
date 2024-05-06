@@ -1,5 +1,5 @@
 
-from Client_udp import Client_udp
+from client_raw import Client_raw
 
 # Função responsável pela interação com o usuário
 def main():
@@ -12,11 +12,12 @@ def main():
         4. Sair
         """))
 
-        if choice == 4:
-            exit(1)
+        client = Client_raw()
+        # if choice == 4:
+        #     exit(1)
 
-        client = Client_udp()
-        client.send_request(choice)
+        # client = Client_udp()
+        # client.send_request(choice)
         
 
 if __name__ == "__main__":
