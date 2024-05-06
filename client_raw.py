@@ -23,17 +23,19 @@ class Client_raw:
 
         req = b'0000'      #esse é os primeiros 4 bits, que o valor especificado indica que é uma requisição 
         tipo = None
-        if type == 1: 
+        if type == '1': 
             tipo = b'0000'
-        elif type == 2:
+        elif type == '2':
             tipo = b'0001'
-        elif type == 3:
+        elif type == '3':
             tipo = b'0010'
+        else: 
+            print(oxe)
 
         identificador = random.randint(1, 65535)  #sorteando o numero que servirá como identificador
         identificador = format(identificador, '016b') #converte o número para sua representação binária e garante que haja pelo menos 16 dígitos na representação
 
-        mensagem = req + tipo + identificador   #concatenando o conjunto de 4bits, 4bits e 16 bits
+        mensagem = req + tipo #concatenando o conjunto de 4bits, 4bits e 16 bits
 
         # Monta o cabeçalho UDP
         comprimento_segmento = 11
