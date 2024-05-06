@@ -40,7 +40,7 @@ def main():
                 exit(1)
 
             client = Client_raw()
-            client.send_request()
+            client.send_request(choice)
 
     
         
