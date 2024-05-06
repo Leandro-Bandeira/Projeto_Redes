@@ -23,11 +23,11 @@ class Client_raw:
 
         req = b'0000'      #esse é os primeiros 4 bits, que o valor especificado indica que é uma requisição 
         tipo = None
-        if type == '1': 
+        if type == 1: 
             tipo = b'0000'
-        elif type == '2':
+        elif type == 2:
             tipo = b'0001'
-        elif type == '3':
+        elif type == 3:
             tipo = b'0010'
         else: 
             print('oxe')
