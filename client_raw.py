@@ -30,7 +30,7 @@ class Client_raw:
         elif type == '3':
             tipo = b'0010'
         else: 
-            print(oxe)
+            print('oxe')
 
         identificador = random.randint(1, 65535)  #sorteando o numero que servirá como identificador
         identificador = format(identificador, '016b') #converte o número para sua representação binária e garante que haja pelo menos 16 dígitos na representação
