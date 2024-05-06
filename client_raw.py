@@ -1,7 +1,7 @@
 import socket
 import sys
 import struct
-
+import random
 
 class Client_raw:
 
