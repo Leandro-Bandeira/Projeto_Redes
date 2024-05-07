@@ -61,7 +61,7 @@ class Client_raw:
         # para cada valor inteiro, transforma-o em ascii a partir do primeiro byte (onde a msg começa) depois de retirar os 32 bytes (cabeçalho fake, cabecalho real e os 4 bytes da outra parte) 
         # até o final
         if type != 3:   #se for uma mensagem (tipo string)
-            msg_rcv = str(data[32:-1].decode("ascii")).rstrip()
+            msg_rcv = str(data[28:-1].decode("ascii")).rstrip()
         
         else:           #se for a qtd de mensagens enviadas(tipo int)         
             msg_rcv = int.from_bytes((data[4:]), "big")
