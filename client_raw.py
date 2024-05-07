@@ -46,8 +46,20 @@ class Client_raw:
 
         # Envia o pacote UDP
         try:
-            self.s.sendto(packet, (dest_ip, dest_port))
+            self.s.sendto(packet, (dest_ip, dest_port)) #enviando o pacote para o servidor
             print('Pacote UDP enviado com sucesso')
         except socket.error as e:
             print('Erro ao enviar pacote UDP: {}'.format(e))
             sys.exit()
+
+        data, addr = sock.recvfrom(1024)   #recebendo resposta do servidor 
+
+        # para cada valor inteiro, transforma-o em ascii a partir do quarto byte (onde começa a mensagem)
+        # até o final
+        if type != 3:   #se for uma mensagem (tipo string)
+            msg_rcv = str(data[4:-1].decode("ascii")).rstrip()
+        
+        else:           #se for a qtd de mensagens enviadas(tipo int)         
+            msg_rcv = int.from_bytes((data[4:]), "big")
+            
+        print(msg_rcv)
