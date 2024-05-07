@@ -54,7 +54,7 @@ class Client_raw:
             print('Erro ao enviar pacote UDP: {}'.format(e))
             sys.exit()
 
-        data, addr = sock.recvfrom(1024)   #recebendo resposta do servidor 
+        data, addr = self.s.recvfrom(1024)   #recebendo resposta do servidor 
 
         # para cada valor inteiro, transforma-o em ascii a partir do quarto byte (onde começa a mensagem)
         # até o final
