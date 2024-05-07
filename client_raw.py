@@ -35,12 +35,14 @@ class Client_raw:
 
         mensagem = req + tipo + identificador#concatenando o conjunto de 4bits, 4bits e 16 bits
 
-        # Monta o cabeçalho UDP
+
+        # Cabeçalho UDP
         comprimento_segmento = 11
         checksum = 0
-        udp_header = struct.pack('!HHHH', source_port, dest_port, comprimento_segmento, checksum) 
         #!HHHH significa que o formato será big-endian e cada H significa um inteiro de 2 bytes (totalizando 8 bytes de cabeçalho)
-        #os 4 H's são definidos logo em seguida: souce_port, dest 
+        #os 4 H's são definidos logo em seguida: souce_port, dest_port, comprimento, checksum  
+        udp_header = struct.pack('!HHHH', source_port, dest_port, comprimento_segmento, checksum)  #junta todos os elementos do cabeçalho UDP
+        
 
         packet = udp_header + mensagem  #definindo o pacote com o cabeçalho e a mensagem de requisição para o servidor 
 
