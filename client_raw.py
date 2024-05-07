@@ -33,14 +33,21 @@ class Client_raw:
         identificador = random.randint(1, 65535)  #sorteando o numero que servirá como identificador
         identificador = identificador.to_bytes(2, byteorder='big') #converte o número para sua representação binária em bigendian
 
-        mensagem = req + tipo + identificador#concatenando o conjunto de 4bits, 4bits e 16 bits
+        mensagem = req + tipo + identificador #concatenando o conjunto de 4bits, 4bits e 16 bits
+
+        #Pseudo cabeçalho IP 
+        ip_origem = b'0xC0A80169'
+        ip_destino = b'0x0FE4BF6D'
+        n_protocolo = b'0x0011'
+        comprimento_seg_udp = b'0x000B'
 
 
         # Cabeçalho UDP
         comprimento_segmento = 11
         checksum = 0
         #!HHHH significa que o formato será big-endian e cada H significa um inteiro de 2 bytes (totalizando 8 bytes de cabeçalho)
-        #os 4 H's são definidos logo em seguida: souce_port, dest_port, comprimento, checksum  
+        #os 4 H's são definidos logo em seguida: souce_port, dest_port, comprimento, checksum 
+        udp_header = struct.pack('!HHHH', source_port, dest_port, comprimento_segmento, checksum)  #junta todos os elementos do cabeçalho UDP
         udp_header = struct.pack('!HHHH', source_port, dest_port, comprimento_segmento, checksum)  #junta todos os elementos do cabeçalho UDP
         
 
