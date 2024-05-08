@@ -61,25 +61,20 @@ class Client_raw:
         ################################
         
         # Calculando o checksum
-        int_origin_ip_h = (ip_origem >> 16) & 0xFFFF
-        int_origin_ip_l = ip_origem & 0xFFFF
-        int_dest_ip_h = (ip_destino >> 16) & 0xFFFF
-        int_dest_ip_l = ip_destino & 0xFFFF
-        int_protocol = n_protocolo
-        int_udp_length = comprimento_seg_udp
-        int_source_port = source_port
-        int_dest_port = dest_port
-        int_length = comprimento_segmento
-        int_checksum = checksum
-        int_payload_h = (mensagem_int >> 8) & 0xFFFF
-        int_payload_l = (mensagem_int << 8) & 0xFFFF
+        #todas as variaveis sao convertidas para inteiros para que seja possivel fazer as operacoes de soma
+        int_origin_ip_h = (ip_origem >> 16) & 0xFFFF    #pega os 16 bits mais significativos do ip de origem
+        int_origin_ip_l = ip_origem & 0xFFFF            #pega os 16 bits menos significativos do ip de origem
+        int_dest_ip_h = (ip_destino >> 16) & 0xFFFF     #pega os 16 bits mais significativos do ip de destino
+        int_dest_ip_l = ip_destino & 0xFFFF             #pega os 16 bits menos significativos do ip de destino            
+        int_payload_h = (mensagem_int >> 8) & 0xFFFF    #pega os 16 bits mais significativos da mensagem
+        int_payload_l = (mensagem_int << 8) & 0xFFFF    #pega os 16 bits menos significativos da mensagem
 
-
-        sum = int_origin_ip_h + int_origin_ip_l + int_dest_ip_h + int_dest_ip_l + int_protocol + int_udp_length + int_source_port + int_dest_port + int_length + int_checksum + int_payload_h + int_payload_l
-        sum_l = sum & 0xFFFF
-        sum_h = (sum >> 16) & 0xFFFF
-        sum_f = sum_h+sum_l
-        checksum = ~sum_f & 0xFFFF
+        #soma de todos os inteiros para calcular o checksum
+        sum = int_origin_ip_h + int_origin_ip_l + int_dest_ip_h + int_dest_ip_l + n_protocolo + comprimento_seg_udp + source_port + dest_port + comprimento_segmento + checksum + int_payload_h + int_payload_l
+        sum_l = sum & 0xFFFF #pega os 16 bits menos significativos da soma
+        sum_h = (sum >> 16) & 0xFFFF #pega os 16 bits mais significativos da soma
+        sum_f = sum_h+sum_l #soma os 16 bits mais e menos significativos para realizar wrap around
+        checksum = ~sum_f & 0xFFFF  #realiza o complemento de 1 e pega os 16 bits menos significativos para o checksum
         
         #!HHHH significa que o formato será big-endian e cada H significa um inteiro de 2 bytes (totalizando 8 bytes de cabeçalho)
         #os 4 H's são definidos logo em seguida: souce_port, dest_port, comprimento, checksum 
