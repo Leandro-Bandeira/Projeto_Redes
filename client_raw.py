@@ -18,13 +18,13 @@ class Client_raw:
     
         # obtém o endereço IP associado à interface de rede padrão
         default_interface = ni.gateways()['default'][ni.AF_INET][1]
-        source_ip = ni.ifaddresses(default_interface)[ni.AF_INET][0]['addr']
+        source_ip = ni.ifaddresses(default_interface)[ni.AF_INET][0]['addr'] #armazena o IP da máquina em que o código está rodando 
         
         dest_ip = '15.228.191.109'  #IP do servidor 
         source_port = 59155     #porta da máquina 
         dest_port = 50000       #porta do servidor
 
-        type_request = None
+        type_request = None    #essa variável possuirá já os 8 bytes (req + tipo)
         if type == 1: 
             type_request = b'\x00' 
         elif type == 2:
@@ -34,40 +34,31 @@ class Client_raw:
 
         identificador = random.randint(1, 65535)  #sorteando o numero que servirá como identificador
         identificador = identificador.to_bytes(2, byteorder='big') #converte o número para sua representação binária em bigendian
-
-        
-        mensagem = type_request + identificador #concatenando o conjunto de 4bits, 4bits e 16 bits
-        
+        mensagem = type_request + identificador #concatenando o conjunto de 8bits e 16 bits
         mensagem_int = int.from_bytes(mensagem, byteorder='big')
         
-        #Pseudo cabeçalho IP
-
-        #transformando o octeto em bytes################################################3
-        octets = source_ip.split('.')
-        # Inicialize uma lista para armazenar os bytes
+        ###################################Pseudo cabeçalho IP
+        octets = source_ip.split('.')  #separa a string do ip em octetos (representados por string)
         bytes_list = []
-        # Converta cada octeto em sua representação binária de 8 bits e adicione à lista
+
+        #esse laço transforma cada octeto em byte
         for octet in octets:
-            # Converta o octeto em inteiro
-            octet_int = int(octet)
-            # Converta o inteiro em um numero binário
-            octet_binary = octet_int.to_bytes(1, byteorder='big')
+            octet_int = int(octet) #converte um octeto em inteiro
+            octet_binary = octet_int.to_bytes(1, byteorder='big') #converte o inteiro em um numero binário
             bytes_list.append(octet_binary)
-        ###############################################
-
         
-        ip_origem_by = bytes_list[0] + bytes_list[1] + bytes_list[2] + bytes_list[3]
-        ip_origem = int.from_bytes(ip_origem_by, byteorder='big')
-        ip_destino = 0x0FE4BF6D
-        n_protocolo = 0x0011
+        ip_origem_by = bytes_list[0] + bytes_list[1] + bytes_list[2] + bytes_list[3]  #concatena os bytes
+        ip_origem = int.from_bytes(ip_origem_by, byteorder='big')  #transforma o ip em inteiro para fazer as operacoes do checksum
+        
+        ip_destino = 0x0FE4BF6D  #ip do serbidor em inteiro 
+        n_protocolo = 0x0011     #numero de protocolo
         comprimento_seg_udp = 0x000B
-        
-        pseud_header = ip_origem.to_bytes(4, byteorder='big')  + ip_destino.to_bytes(4, byteorder='big') + n_protocolo.to_bytes(2, byteorder='big')  + comprimento_seg_udp.to_bytes(2, byteorder='big') 
+        ############################################################3 
 
-        # Cabeçalho UDP
-        #comprimento_segmento_b = b'0000000000001011'
+        ########## parte do cabeçalho UDP
         comprimento_segmento = 11
         checksum = 0
+        ################################
         
         # Calculando o checksum
         int_origin_ip_h = (ip_origem >> 16) & 0xFFFF
@@ -89,15 +80,13 @@ class Client_raw:
         sum_h = (sum >> 16) & 0xFFFF
         sum_f = sum_h+sum_l
         checksum = ~sum_f & 0xFFFF
-        #checksum = 0
         
         #!HHHH significa que o formato será big-endian e cada H significa um inteiro de 2 bytes (totalizando 8 bytes de cabeçalho)
         #os 4 H's são definidos logo em seguida: souce_port, dest_port, comprimento, checksum 
         udp_header = struct.pack('!HHHH', source_port, dest_port, comprimento_segmento, checksum)  #junta todos os elementos do cabeçalho UDP        
+        packet = udp_header + mensagem  #definindo o pacote com o cabeçalho udp e a mensagem de requisição para o servidor 
 
-
-        packet = udp_header + mensagem  #definindo o pacote com o cabeçalho e a mensagem de requisição para o servidor 
-        # Envia o pacote UDP
+        
         try:
             self.s.sendto(packet, (dest_ip, dest_port)) #enviando o pacote para o servidor
         except socket.error as e:
@@ -115,5 +104,5 @@ class Client_raw:
         else:           #se for a qtd de mensagens enviadas(tipo int)         
             msg_rcv = int.from_bytes((data[32:]), "big")
             
-        print(msg_rcv)
+        print(msg_rcv)  #printando a mensagem recebida pelo servidor
 
