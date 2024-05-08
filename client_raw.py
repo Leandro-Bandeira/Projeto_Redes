@@ -37,9 +37,24 @@ class Client_raw:
         
         mensagem_int = int.from_bytes(mensagem, byteorder='big')
         
-        #Pseudo cabeçalho IP 
-        ip_origem_b = socket.inet_aton(source_ip)
-        ip_origem = int.from_bytes(ip_origem_b, byteorder='big')
+        #Pseudo cabeçalho IP
+
+        #transformando o octeto em bytes################################################3
+        octets = source_ip.split('.')
+        # Inicialize uma lista para armazenar os bytes
+        bytes_list = []
+        # Converta cada octeto em sua representação binária de 8 bits e adicione à lista
+        for octet in octets:
+            # Converta o octeto em inteiro
+            octet_int = int(octet)
+            # Converta o inteiro em um numero binário
+            octet_binary = octet_int.to_bytes(1, byteorder='big')
+            bytes_list.append(octet_binary)
+
+        
+        ###############################################
+        ip_origem_by = bytes_list[0] + bytes_list[1] + bytes_list[2] + bytes_list[3]
+        ip_origem = int.from_bytes(ip_origem_by, byteorder='big')
         ip_destino = 0x0FE4BF6D
         n_protocolo = 0x0011
         comprimento_seg_udp = 0x000B
@@ -72,42 +87,30 @@ class Client_raw:
         sum_h = (sum >> 16) & 0xFFFF
         sum_f = sum_h+sum_l
         checksum = ~sum_f & 0xFFFF
-        print(hex(checksum))
-        print("aqqqq")
+        checksum = 0
         
         #!HHHH significa que o formato será big-endian e cada H significa um inteiro de 2 bytes (totalizando 8 bytes de cabeçalho)
         #os 4 H's são definidos logo em seguida: souce_port, dest_port, comprimento, checksum 
-        udp_header = struct.pack('!HHHH', source_port, dest_port, comprimento_segmento, checksum)  #junta todos os elementos do cabeçalho UDP
-
-        print(bin(source_port))
-        print(bin(dest_port))
-        print(bin(comprimento_segmento))
-        print(bin(checksum))
-        print("udp header:")
-        print(int.from_bytes(udp_header, byteorder='big'))        
+        udp_header = struct.pack('!HHHH', source_port, dest_port, comprimento_segmento, checksum)  #junta todos os elementos do cabeçalho UDP        
 
 
         packet = udp_header + mensagem  #definindo o pacote com o cabeçalho e a mensagem de requisição para o servidor 
-        print(mensagem)
         # Envia o pacote UDP
         try:
             self.s.sendto(packet, (dest_ip, dest_port)) #enviando o pacote para o servidor
-            print('Pacote UDP enviado com sucesso')
         except socket.error as e:
             print('Erro ao enviar pacote UDP: {}'.format(e))
             sys.exit()
 
         data, addr = self.s.recvfrom(1024)   #recebendo resposta do servidor 
 
-        #print(data)
-
         # para cada valor inteiro, transforma-o em ascii a partir do primeiro byte (onde a msg começa) depois de retirar os 32 bytes (cabeçalho fake, cabecalho real e os 4 bytes da outra parte) 
         # até o final
-        # if type != 3:   #se for uma mensagem (tipo string)
-        #     msg_rcv = str(data[28:-1].decode("ascii")).rstrip()
+        if type != 3:   #se for uma mensagem (tipo string)
+            msg_rcv = str(data[31:-1].decode("ascii")).rstrip()
         
-        # else:           #se for a qtd de mensagens enviadas(tipo int)         
-        #     msg_rcv = int.from_bytes((data[4:]), "big")
+        else:           #se for a qtd de mensagens enviadas(tipo int)         
+            msg_rcv = int.from_bytes((data[4:]), "big")
             
-        # print(msg_rcv)
+        print(msg_rcv)
 
