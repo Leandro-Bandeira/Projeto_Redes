@@ -26,11 +26,11 @@ class Client_raw:
 
         type_request = None    #essa variável possuirá já os 8 bytes (req + tipo)
         if type == 1: 
-            type_request = b'\x00' 
+            type_request = b'\x00' # 00000000 (0x00)- Data e hora
         elif type == 2:
-            type_request = b'\x01' 
+            type_request = b'\x01' # 00000001 (0x01)- Mensagem motivadora
         elif type == 3:
-            type_request = b'\x02' 
+            type_request = b'\x02' # 00000000 (0x02)- Quantidade de mensagens enviadas pelo servidor
 
         identificador = random.randint(1, 65535)  #sorteando o numero que servirá como identificador
         identificador = identificador.to_bytes(2, byteorder='big') #converte o número para sua representação binária em bigendian
