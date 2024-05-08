@@ -36,10 +36,10 @@ class Client_raw:
         mensagem = req + tipo + identificador #concatenando o conjunto de 4bits, 4bits e 16 bits
 
         #Pseudo cabeçalho IP 
-        ip_origem = b'0xC0A80169'
-        ip_destino = b'0x0FE4BF6D'
-        n_protocolo = b'0x0011'
-        comprimento_seg_udp = b'0x000B'
+        ip_origem = 0xC0A80169
+        ip_destino = 0x0FE4BF6D
+        n_protocolo = 0x0011
+        comprimento_seg_udp = 0x000B
 
 
         # Cabeçalho UDP
@@ -47,10 +47,12 @@ class Client_raw:
         checksum = 0
         
         # Calculando o checksum
-        int_origin_ip = int(ip_origem, 16)
-        int_dest_ip = int(ip_destino, 16)
-        int_protocol = int(n_protocolo, 16)
-        int_udp_length = int(comprimento_seg_udp, 16)
+        int_origin_ip_h = (ip_origem >> 16) & 0xFFFF
+        int_origin_ip_l = ip_origem & 0xFFFF
+        int_dest_ip_h = (ip_destino >> 16) & 0xFFFF
+        int_dest_ip_l = ip_destino & 0xFFFF
+        int_protocol = n_protocolo
+        int_udp_length = comprimento_seg_udp
         int_source_port = source_port
         int_dest_port = dest_port
         int_length = comprimento_segmento
@@ -58,8 +60,8 @@ class Client_raw:
         int_payload_h = (mensagem >> 8) & 0xFFFF
         int_payload_l = (mensagem << 8) & 0xFFFF
 
-        
-        sum = int_origin_ip + int_dest_ip + int_protocol + int_udp_length + int_source_port + int_dest_port + int_length + int_checksum + int_payload_h + int_payload_l
+
+        sum = int_origin_ip_h + int_origin_ip_l + int_dest_ip_h + int_dest_ip_l + int_protocol + int_udp_length + int_source_port + int_dest_port + int_length + int_checksum + int_payload_h + int_payload_l
         sum_l = sum & 0xFFFF
         sum_h = (sum >> 16) & 0xFFFF
         sum_f = sum_h+sum_l
