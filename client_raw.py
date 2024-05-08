@@ -2,6 +2,7 @@ import socket
 import sys
 import struct
 import random
+import netifaces as ni
 
 class Client_raw:
 
@@ -14,9 +15,11 @@ class Client_raw:
             sys.exit()
 
     def send_request(self, type):
-        # Define os detalhes do pacote UDP
+    
+        # obtém o endereço IP associado à interface de rede padrão
+        default_interface = ni.gateways()['default'][ni.AF_INET][1]
+        source_ip = ni.ifaddresses(default_interface)[ni.AF_INET][0]['addr']
         
-        source_ip = self.s.getsockname()[0] #pega o IP da máquina que está rodando para atribuir como origem 
         dest_ip = '15.228.191.109'  #IP do servidor 
         source_port = 59155     #porta da máquina 
         dest_port = 50000       #porta do servidor
@@ -50,15 +53,14 @@ class Client_raw:
             # Converta o inteiro em um numero binário
             octet_binary = octet_int.to_bytes(1, byteorder='big')
             bytes_list.append(octet_binary)
+        ###############################################
 
         
-        ###############################################
         ip_origem_by = bytes_list[0] + bytes_list[1] + bytes_list[2] + bytes_list[3]
         ip_origem = int.from_bytes(ip_origem_by, byteorder='big')
         ip_destino = 0x0FE4BF6D
         n_protocolo = 0x0011
         comprimento_seg_udp = 0x000B
-        #pseud_header = struct.pack('!HHHH', ip_origem, ip_destino, n_protocolo, comprimento_seg_udp)
         
         pseud_header = ip_origem.to_bytes(4, byteorder='big')  + ip_destino.to_bytes(4, byteorder='big') + n_protocolo.to_bytes(2, byteorder='big')  + comprimento_seg_udp.to_bytes(2, byteorder='big') 
 
@@ -87,7 +89,7 @@ class Client_raw:
         sum_h = (sum >> 16) & 0xFFFF
         sum_f = sum_h+sum_l
         checksum = ~sum_f & 0xFFFF
-        checksum = 0
+        #checksum = 0
         
         #!HHHH significa que o formato será big-endian e cada H significa um inteiro de 2 bytes (totalizando 8 bytes de cabeçalho)
         #os 4 H's são definidos logo em seguida: souce_port, dest_port, comprimento, checksum 
@@ -102,6 +104,7 @@ class Client_raw:
             print('Erro ao enviar pacote UDP: {}'.format(e))
             sys.exit()
 
+        data = None
         data, addr = self.s.recvfrom(1024)   #recebendo resposta do servidor 
 
         # para cada valor inteiro, transforma-o em ascii a partir do primeiro byte (onde a msg começa) depois de retirar os 32 bytes (cabeçalho fake, cabecalho real e os 4 bytes da outra parte) 

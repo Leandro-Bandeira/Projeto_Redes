@@ -1,6 +1,6 @@
 # Projeto_Redes
 
-### O programa deve ser rodado com o comando: 
+### O usuario deve ter a biblioteca netifaces instalada. O programa deve ser rodado com o comando: 
 
 sudo python3 main.py
 
